@@ -22,6 +22,27 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
         <div className="site-frame">
+          <div className="border-cuts">
+            <span className="cut top c1" />
+            <span className="cut top c2" />
+            <span className="cut top c3" />
+            <span className="cut top c4" />
+
+            <span className="cut right c1" />
+            <span className="cut right c2" />
+            <span className="cut right c3" />
+            <span className="cut right c4" />
+
+            <span className="cut bottom c1" />
+            <span className="cut bottom c2" />
+            <span className="cut bottom c3" />
+            <span className="cut bottom c4" />
+
+            <span className="cut left c1" />
+            <span className="cut left c2" />
+            <span className="cut left c3" />
+            <span className="cut left c4" />
+          </div>
           <nav className="left-nav" aria-label="Primary">
             <ul className="nav-list">
               <li className="nav-item selected">Portfolio</li>
