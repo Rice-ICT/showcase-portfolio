@@ -16,6 +16,7 @@ body {
   /* keep the viewport fixed; no visible scrolling */
   overflow: hidden;
   height: 100vh;
+  transition: background-color 300ms ease, color 300ms ease;
 }
 .site-frame {
   position: fixed; /* keep layout stuck to the screen */
@@ -30,7 +31,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
+  /* allow decorative cuts to be visible outside the frame */
+  overflow: visible;
+  transition: border-color 300ms ease, background-color 300ms ease;
 }
 
 /* Left navbar that hugs the inner edge of the site-frame border */
@@ -59,22 +62,33 @@ body {
   padding: 6px 12px;
   cursor: pointer;
   font-size: 1.25rem;
+  transition: color 300ms ease, background-color 300ms ease, font-style 300ms ease;
 }
 
-.nav-item.selected {
+.selected{
   font-weight: 300; /* selected */
   font-style: italic;
-  background: #000; /* black bar around selected item */
-  color: #F7E211; /* yellow text for selected */
+  background: transparent;
+  color: inherit;
+  transition: color 300ms ease, background-color 300ms ease, font-style 300ms ease;
+}
+.selected.inverted{
+  font-weight: 300; /* selected */
+  font-style: italic;
+  background: #F7E211;
+  color: #000;
 }
 
 /* CSS-only nav highlighting tied to the visual state (no JS changes) */
 /* When inverted (About), highlight About nav */
+/* When inverted (About state) make About show selected + inverted-selected visuals */
 body.inverted #about-nav {
   font-weight: 300;
   font-style: italic;
-  background: #000;
-  color: #F7E211;
+  background: #F7E211; /* yellow block */
+  color: #000; /* black text on yellow */
+  padding: 6px 12px;
+  box-decoration-break: clone;
 }
 
 
@@ -83,6 +97,7 @@ body.inverted #about-nav {
 .lorem {
   font-family: 'Lexend Deca', system-ui, sans-serif;
   font-size: 1.5vw; /* slightly larger copy */
+  transition: color 300ms ease, background-color 300ms ease, transform 300ms ease;
 }
 /* When not inverted (Portfolio state), highlight Portfolio nav */
 body:not(.inverted) #portfolio-nav {
@@ -90,6 +105,19 @@ body:not(.inverted) #portfolio-nav {
   font-style: italic;
   background: #000;
   color: #F7E211;
+}
+
+/* Projects page visual overrides: when in projects, make portfolio/about neutral and projects selected */
+body.projects .nav-item#portfolio-nav,
+body.projects .nav-item#about-nav {
+  background: transparent !important;
+  color: #000 !important;
+  font-style: normal !important;
+}
+body.projects .nav-item#projects-nav {
+  background: #F7E211 !important;
+  color: #000 !important;
+  font-style: italic !important;
 }
 
 .content {
@@ -109,12 +137,16 @@ body:not(.inverted) #portfolio-nav {
   position: absolute;
   inset: 0; /* cover entire site-frame including border */
   pointer-events: none;
-  z-index: 150; /* render cuts above the black border */
+  z-index: 9999; /* render cuts above the black border */
+  /* create a new stacking context to avoid clipping from other siblings */
+  transform: translateZ(0);
 }
 
 .cut{
   position: absolute;
   background: #F7E211; /* yellow */
+  transition: background-color 300ms ease, transform 300ms ease;
+  z-index: 10000;
 }
 
 /* top cuts: thin horizontal bars (2px tall) placed on the top border */
@@ -232,14 +264,16 @@ body:not(.inverted) #portfolio-nav {
 
 .lorem{
   position: absolute;
-  width: 20vw; /* ~20% of the viewport width */
+  width: 25vw; /* ~20% of the viewport width */
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 600ms ease, transform 600ms ease;
   z-index: 5;
   text-align: left;
-  font-size: 1rem;
+  font-size: 1.75vw;
   color: #000;
+  left: 15vw;
+  font-weight: 200;
 }
 .lorem.visible{
   opacity: 1;
@@ -277,9 +311,35 @@ body.inverted .nav-item.selected{
   background: #F7E211;
 }
 
+/* When About is active, ensure Portfolio does NOT keep the "selected" visual.
+   Instead render Portfolio with a black background and yellow text to contrast. */
+body.inverted #portfolio-nav {
+  background: #000 !important;
+  color: #F7E211 !important;
+  font-style: normal; /* remove italic/selected typography */
+}
+/* also make sure the selected class does not force a different look on portfolio while inverted */
+body.inverted #portfolio-nav.selected {
+  background: #000 !important;
+  color: #F7E211 !important;
+  font-style: normal !important;
+}
+
 body.inverted .hero{ color: #000; }
 body.inverted .lorem{ color: #F7E211; }
 body.inverted .cut{ background: #000; }
+
+/* when we've scrolled past the about section, create a small visual gap before next content */
+body.post-about .site-frame {
+  /* increase bottom spacing inside the frame so the next section doesn't appear instantly */
+  padding-bottom: 120px; /* extra gap */
+}
+
+/* ensure colours return to portfolio (yellow bg, black text) when not inverted */
+body.post-about {
+  background: #F7E211;
+  color: #000;
+}
 
 
 

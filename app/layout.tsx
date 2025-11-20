@@ -47,17 +47,25 @@ export default function RootLayout({
             <ul className="nav-list">
               <li className="nav-item selected" id="portfolio-nav">Portfolio</li>
               <li className="nav-item" id="about-nav">About</li>
-              <li className="nav-item">Projects</li>
-              <li className="nav-item">Resume</li>
-              <li className="nav-item">Contact</li>
+              <li className="nav-item" id="projects-nav">Projects</li>
+              <li className="nav-item" id="resume-nav">Resume</li>
+              <li className="nav-item" id="contact-nav">Contact</li>
             </ul>
           </nav>
           <script dangerouslySetInnerHTML={{__html: `
             (function(){
               var about = document.getElementById('about-nav');
               var portfolio = document.getElementById('portfolio-nav');
-              if(about) about.addEventListener('click', function(e){ e.preventDefault(); window.dispatchEvent(new CustomEvent('setPageState', { detail: { state: 'about' } })); });
-              if(portfolio) portfolio.addEventListener('click', function(e){ e.preventDefault(); window.dispatchEvent(new CustomEvent('setPageState', { detail: { state: 'portfolio' } })); });
+              var projects = document.getElementById('projects-nav');
+              function clearSelected(){
+                var els = document.querySelectorAll('.nav-item.selected');
+                els.forEach(function(el){ el.classList.remove('selected'); });
+              }
+              if(about) about.addEventListener('click', function(e){ e.preventDefault(); window.dispatchEvent(new CustomEvent('setPageState', { detail: { state: 'about' } })); clearSelected(); about.classList.add('selected'); });
+              if(portfolio) portfolio.addEventListener('click', function(e){ e.preventDefault(); window.dispatchEvent(new CustomEvent('setPageState', { detail: { state: 'portfolio' } })); clearSelected(); portfolio.classList.add('selected'); });
+              if(projects) projects.addEventListener('click', function(e){ e.preventDefault(); window.dispatchEvent(new CustomEvent('setPageState', { detail: { state: 'projects' } })); clearSelected(); projects.classList.add('selected'); });
+              // keep nav selection synced with external setPageState events
+              window.addEventListener('setPageState', function(ev){ var s = ev?.detail?.state; clearSelected(); if(s === 'about' && about) about.classList.add('selected'); else if(s === 'portfolio' && portfolio) portfolio.classList.add('selected'); else if(s === 'projects' && projects) projects.classList.add('selected'); });
             })();
           `}} />
 
