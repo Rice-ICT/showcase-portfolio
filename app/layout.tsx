@@ -45,13 +45,21 @@ export default function RootLayout({
           </div>
           <nav className="left-nav" aria-label="Primary">
             <ul className="nav-list">
-              <li className="nav-item selected">Portfolio</li>
-              <li className="nav-item">About</li>
+              <li className="nav-item selected" id="portfolio-nav">Portfolio</li>
+              <li className="nav-item" id="about-nav">About</li>
               <li className="nav-item">Projects</li>
               <li className="nav-item">Resume</li>
               <li className="nav-item">Contact</li>
             </ul>
           </nav>
+          <script dangerouslySetInnerHTML={{__html: `
+            (function(){
+              var about = document.getElementById('about-nav');
+              var portfolio = document.getElementById('portfolio-nav');
+              if(about) about.addEventListener('click', function(e){ e.preventDefault(); window.dispatchEvent(new CustomEvent('setPageState', { detail: { state: 'about' } })); });
+              if(portfolio) portfolio.addEventListener('click', function(e){ e.preventDefault(); window.dispatchEvent(new CustomEvent('setPageState', { detail: { state: 'portfolio' } })); });
+            })();
+          `}} />
 
           <main className="content">
             {children}

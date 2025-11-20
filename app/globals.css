@@ -1,35 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;600&display=swap');
 *{
     margin: 0;
     padding: 0;
     border: 0;
     box-sizing: border-box;
 }
+/* page defaults and allow vertical scroll for scroll-driven transitions */
 body {
-    padding: 30px;
-    background-color: #F7E211;
-    height: auto;
-    overflow: hidden;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* start with yellow background */
+  background: #F7E211;
+  color: #000;
+  /* keep the viewport fixed; no visible scrolling */
+  overflow: hidden;
+  height: 100vh;
 }
 .site-frame {
-    position: relative;
-    width: calc(100vw - 60px); /* account for padding */
-    height: calc(100vh - 60px); /* account for padding */
-    box-sizing: border-box;
-    padding: 30px; /* inset from edges */
-    border: 2px solid #000; /* black border around website */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: fixed; /* keep layout stuck to the screen */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100vw - 60px); /* account for padding */
+  height: calc(100vh - 60px);
+  box-sizing: border-box;
+  padding: 30px; /* inset from edges */
+  border: 2px solid #000; /* black border around website */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 
-/* Left fixed navbar */
+/* Left navbar that hugs the inner edge of the site-frame border */
 .left-nav {
-  position: fixed;
-  top: 30px; /* account for site-frame padding */
-  left: 30px; /* account for site-frame padding */
+  position: absolute; /* inside .site-frame */
+  top: 0; /* account for site-frame padding */
+  left: 0px; /* hug the inner edge of the border */
   display: flex;
   align-items: flex-start;
-  z-index: 1000;
+  z-index: 200; /* above cuts so nav stays visible */
 }
 
 .nav-list {
@@ -57,9 +68,40 @@ body {
   color: #F7E211; /* yellow text for selected */
 }
 
+/* CSS-only nav highlighting tied to the visual state (no JS changes) */
+/* When inverted (About), highlight About nav */
+body.inverted #about-nav {
+  font-weight: 300;
+  font-style: italic;
+  background: #000;
+  color: #F7E211;
+}
+
+
+
+/* Apply Lexend Deca to the lorem/about copy and scale up */
+.lorem {
+  font-family: 'Lexend Deca', system-ui, sans-serif;
+  font-size: 1.5vw; /* slightly larger copy */
+}
+/* When not inverted (Portfolio state), highlight Portfolio nav */
+body:not(.inverted) #portfolio-nav {
+  font-weight: 300;
+  font-style: italic;
+  background: #000;
+  color: #F7E211;
+}
+
 .content {
-  margin-left: 140px; /* leave space for fixed nav */
+  /* center content within the fixed site-frame; nav is fixed so no need for left margin */
+  margin-left: 0;
   padding-top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 100%;
 }
 
 /* animated yellow cuts that move along the border lines */
@@ -67,7 +109,7 @@ body {
   position: absolute;
   inset: 0; /* cover entire site-frame including border */
   pointer-events: none;
-  z-index: 20;
+  z-index: 150; /* render cuts above the black border */
 }
 
 .cut{
@@ -79,7 +121,6 @@ body {
 .cut.top{
   top: -2px; /* move outward to sit on the border */
   height: 2px; /* same thickness as border */
-  z-index: 25;
 }
 .cut.top.c1{ left: 8%; width: 20px; animation: top-move-1 6.2s ease-in-out infinite; }
 .cut.top.c2{ left: 30%; width: 50px; animation: top-move-2 3.8s ease-in-out infinite; }
@@ -139,11 +180,14 @@ body {
 @keyframes left-move-2{ 0%{ transform: translateY(0);} 50%{ transform: translateY(120px);} 100%{ transform: translateY(0);} }
 @keyframes left-move-3{ 0%{ transform: translateY(0);} 50%{ transform: translateY(-20px);} 100%{ transform: translateY(0);} }
 @keyframes left-move-4{ 0%{ transform: translateY(0);} 50%{ transform: translateY(160px);} 100%{ transform: translateY(0);} }
+
 .title-section {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
+  gap: 0px;
 }
 .title-text {
     font-family: "Inter", sans-serif;
@@ -153,25 +197,89 @@ body {
     line-height: 0.8;
 }
 .nieck-image{
-    width: auto;
-    height: 100vh;
-    background-blend-mode: difference;
+  width: auto;
+  height: calc(100vh - 60px); /* match viewport height inside the frame padding */
+  max-height: calc(100vh - 60px);
+  object-fit: cover;
+  background-blend-mode: difference;
+  z-index: 1; /* keep image behind the title */
 }
 
 .hero {
-    font-family: "Inter", sans-serif;
-    font-weight: 800;
-    font-style: italic;
-    font-size: 150px;
-    line-height: 1;
-    display: inline-block;
-    color: black;
-    z-index: 2;
-    letter-spacing: -0.5vw;
-    line-height: 0.8;
-    position: relative;
-    left: 100px;
+  font-family: "Inter", sans-serif;
+  font-weight: 800;
+  font-style: italic;
+  font-size: 12vw; /* responsive large heading */
+  line-height: 0.8;
+  display: inline-block;
+  color: black;
+  z-index: 5; /* place above the image */
+  letter-spacing: -0.5vw;
+  position: relative;
+  text-align: left;
+  max-width: 48%;
+  /* nudge the title slightly over the image */
+  transform: translateX(20%);
 }
+
+/* hide hero when scrolled */
+.hero.hide{
+  opacity: 0;
+  transform: translateY(-30px);
+  transition: opacity 500ms ease, transform 500ms ease;
+  pointer-events: none;
+}
+
+.lorem{
+  position: absolute;
+  width: 20vw; /* ~20% of the viewport width */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 600ms ease, transform 600ms ease;
+  z-index: 5;
+  text-align: left;
+  font-size: 1rem;
+  color: #000;
+}
+.lorem.visible{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* spacer used to create scrollable area so scrollY toggles reliably */
+.spacer {
+  width: 100%;
+  transition: height 420ms ease;
+}
+.spacer.tall {
+  height: 160vh; /* tall spacer so scrolling down passes threshold */
+}
+.spacer.short {
+  height: 40vh; /* shorter when in about state so scrolling up returns */
+}
+
+/* inverted colour state */
+body.inverted{
+  background-color: #000 !important;
+  color: #F7E211 !important;
+}
+
+body.inverted .site-frame{
+  border-color: #F7E211;
+}
+
+body.inverted .nav-item{
+  color: #F7E211;
+}
+
+body.inverted .nav-item.selected{
+  color: #000;
+  background: #F7E211;
+}
+
+body.inverted .hero{ color: #000; }
+body.inverted .lorem{ color: #F7E211; }
+body.inverted .cut{ background: #000; }
 
 
 
