@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 
 export default function Home() {
@@ -10,11 +10,35 @@ export default function Home() {
   // page stages to allow a gap/hysteresis between about and the next section
   const [pageState, setPageState] = useState<'portfolio'|'about'|'projects'>('portfolio');
 
+  // projects slider state
+  const projects = [
+    { id: 'p1', img: '/images/persona-portfolio-thumbnail.png', left: 'Semester 3 portfolio - applying the persona 3 artstyle to a website.', right: 'Solo project' },
+    { id: 'p2', img: '/images/bonds-thumbnail.png', left: 'A project to help young adults deal with loneliness.', right: 'Team project' },
+    { id: 'p3', img: '/images/semester-2-portfolio-thumbnail.png', left: 'My first try at parallax websites', right: 'Solo project' },
+  ];
+  const [currentProject, setCurrentProject] = useState(0);
+  const projectScrollLock = useRef(false);
+  const pageStateRef = useRef(pageState);
+
   useEffect(() => {
+    // keep a ref copy of pageState for handlers defined below
+    pageStateRef.current = pageState;
     let ticking = false;
     // Replace native scroll with virtual scroll driven by wheel/touch so layout stays fixed
     function onWheel(e: WheelEvent) {
-      // prevent default page scroll
+      // when in projects state, use wheel to navigate between project slides
+      if (pageStateRef.current === 'projects') {
+        e.preventDefault();
+        if (projectScrollLock.current) return;
+        projectScrollLock.current = true;
+        const dir = Math.sign(e.deltaY);
+        setCurrentProject((i) => Math.min(projects.length - 1, Math.max(0, i + dir)));
+        // small debounce so a single scroll gesture doesn't skip multiple items
+        setTimeout(() => { projectScrollLock.current = false; }, 300);
+        return;
+      }
+
+      // prevent default page scroll for non-project states
       e.preventDefault();
       const delta = Math.sign(e.deltaY) * 0.05; // step per wheel tick
       setVpos((p) => Math.min(1, Math.max(0, +(p + delta).toFixed(3))));
@@ -26,9 +50,19 @@ export default function Home() {
     } // store initial touch position
     function onTouchMove(e: TouchEvent) {
       if (touchStartY == null) return;
-      e.preventDefault();
       const d = touchStartY - e.touches[0].clientY;
-      const delta = Math.sign(d) * 0.05;
+      const dir = Math.sign(d);
+      // when in projects state, swipe up/down changes project slides
+      if (pageStateRef.current === 'projects') {
+        e.preventDefault();
+        if (projectScrollLock.current) return;
+        projectScrollLock.current = true;
+        setCurrentProject((i) => Math.min(projects.length - 1, Math.max(0, i + dir)));
+        setTimeout(() => { projectScrollLock.current = false; }, 300);
+        return;
+      }
+      e.preventDefault();
+      const delta = dir * 0.05;
       setVpos((p) => Math.min(1, Math.max(0, +(p + delta).toFixed(3))));
     }
     // attach listeners for wheel and touch events
@@ -38,11 +72,11 @@ export default function Home() {
     // initial check
     setVpos(0);
     return () => {
-    window.removeEventListener("wheel", onWheel);
-    window.removeEventListener("touchstart", onTouchStart);
-    window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
     };
-  }, []);
+  }, [pageState]);
 
   useEffect(() => {
     // toggle a class on the body so global styles can invert colours
@@ -97,7 +131,13 @@ export default function Home() {
       }
       else if (s === 'projects') {
         // jump to projects/post-about
-        setVpos(0.95);
+        setVpos(1);
+        setPageState('projects');
+        setScrolled(false);
+      }
+      else if (s === 'resume') {
+        // jump to projects/post-about
+        setVpos(1);
         setPageState('projects');
         setScrolled(false);
       }
@@ -137,18 +177,42 @@ export default function Home() {
         {/* render projects-section only once we've moved into the projects state */}
         {pageState === 'projects' && (
           <div className="projects-section">
-            <h3>My Projects</h3>
-            <ul>
-              <li>
-                <a href="#project1">Project 1</a>
-              </li>
-              <li>
-                <a href="#project2">Project 2</a>
-              </li>
-              <li>
-                <a href="#project3">Project 3</a>
-              </li>
-            </ul>
+            {/* decorative moving cuts around the projects box (matches site-frame cuts) */}
+            <div className="border-cuts">
+              <span className="cut top c1" />
+              <span className="cut top c2" />
+              <span className="cut top c3" />
+              <span className="cut top c4" />
+
+              <span className="cut right c1" />
+              <span className="cut right c2" />
+              <span className="cut right c3" />
+              <span className="cut right c4" />
+
+              <span className="cut bottom c1" />
+              <span className="cut bottom c2" />
+              <span className="cut bottom c3" />
+              <span className="cut bottom c4" />
+
+              <span className="cut left c1" />
+              <span className="cut left c2" />
+              <span className="cut left c3" />
+              <span className="cut left c4" />
+            </div>
+
+            <div className="projects-list">
+              <div className="projects-inner" style={{ transform: `translateY(-${currentProject * 100}%)` }}>
+                {projects.map((p, idx) => (
+                  <a key={p.id} href={`#${p.id}`} className={`project-button project-slide ${idx === currentProject ? 'active' : ''}`}>
+                    <img src={p.img} alt={p.left} className="project-image"/>
+                    <div className="textbox-project-button">
+                      <h3 className="project-text-left">{p.left}</h3>
+                      <h3 className="project-text-right">{p.right}</h3>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
           </div>
         )}
         {/* when pageState === 'postAbout' nothing of the hero/lorem/image is rendered, producing a gap */}
