@@ -388,6 +388,67 @@ body.post-about {
 .project-slide.active{ /* subtle highlight for active slide */
   transform: translateZ(0); /* no-op to avoid empty ruleset lint error */
 }
+
+/* Resume section: similar box to projects */
+.resume-section {
+  width: 45vw;
+  height: 25vw;
+  max-height: 550px;
+  max-width: 1100px;
+  margin: 36px auto;
+  box-sizing: border-box;
+  border: 2px solid;
+  position: relative;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resume-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+  font-size: 5vw;
+  font-weight: 900;
+  transition: opacity 0.3s ease;
+  font-style: italic;
+  line-height: 4.5vw;
+}
+.resume-link:hover{
+  animation: text-glitch-hover 0.2s ;
+}
+@keyframes text-glitch-hover {
+  0% {font-family: 'Inter', sans-serif;
+      font-style: italic; 
+      letter-spacing: normal;
+    }
+  25% {font-family: 'Courier New', Courier, monospace;
+      font-style: normal; 
+      letter-spacing: -0.1vw;
+    }
+  50% {font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+      font-style: italic; 
+      letter-spacing: normal;
+    }
+  75% {font-family: 'Lucida Console', Monaco, monospace;
+      font-style: normal; 
+      letter-spacing: normal;
+    }
+  100%{
+      font-family: 'Inter', sans-serif;
+      font-style: italic; 
+    }
+}
+
+
+.resume-link:hover {
+  opacity: 0.7;
+}
 .project-button{
   display : flex;
   flex-direction: column;
@@ -422,6 +483,31 @@ body.projects #projects-nav.selected {
   background: #000 !important;
   color: #F7E211 !important;
 }
+
+/* Resume state styles */
+/* Resume button: black background with yellow text when selected, with italic text */
+#resume-nav.selected,
+body.resume #resume-nav.selected {
+  background: #000 !important;
+  color: #F7E211 !important;
+  font-style: italic !important;
+}
+
+/* Portfolio button in resume state: yellow background with black text, non-italic, lighter weight */
+body.resume #portfolio-nav {
+  background: #F7E211 !important;
+  color: #000 !important;
+  font-style: normal !important;
+  font-weight: 200 !important;
+}
+
+/* Portfolio button in non-portfolio states: lighter font-weight */
+body.about #portfolio-nav,
+body.projects #portfolio-nav,
+body.resume #portfolio-nav {
+  font-weight: 200 !important;
+}
+
 
 
 

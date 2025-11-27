@@ -1,22 +1,14 @@
 "use client";
 
-// ========================================
-// LOOK UP SINGLE PAGE APPLICATIONS (SPA) REACT NEXT.JS
-// AND HOW TO MANAGE STATE AND SCROLLING
-// ========================================
-
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 
 export default function Home() {
+  // Current section being displayed
+  const [pageState, setPageState] = useState<'portfolio'|'about'|'projects'|'resume'>('portfolio');
+  
   // Controls inverted color scheme (black bg + yellow text in about section)
   const [scrolled, setScrolled] = useState(false);
-  
-  // Virtual scroll position (0-1): 0 = portfolio, 0.4+ = about, 0.8+ = projects
-  const [vpos, setVpos] = useState(0);
-  
-  // Current section: derived from vpos with hysteresis to prevent flickering
-  const [pageState, setPageState] = useState<'portfolio'|'about'|'projects'>('portfolio');
 
   // Project data for the slider
   const projects = [
@@ -28,7 +20,8 @@ export default function Home() {
   // Current project index in the slider
   const [currentProject, setCurrentProject] = useState(0);
   
-  // Debounce lock to prevent slide skipping (300ms delay between transitions)
+  // Debounce locks to prevent rapid scrolling
+  const pageScrollLock = useRef(false);
   const projectScrollLock = useRef(false);
   
   // Refs to avoid stale closures in event handlers
@@ -36,111 +29,169 @@ export default function Home() {
   const currentProjectRef = useRef(currentProject);
 
   // Keep refs in sync with state
-  useEffect(() => { currentProjectRef.current = currentProject; }, [currentProject]);
-
-  // Main effect: Handle wheel and touch events for virtual scrolling and project navigation
-  useEffect(() => {
-    // Sync pageStateRef with current pageState to avoid stale closure issues
+  useEffect(() => { 
     pageStateRef.current = pageState;
-    let ticking = false;
-    
-    // Wheel handler: Navigate projects or update vpos
+  }, [pageState]);
+  
+  useEffect(() => { 
+    currentProjectRef.current = currentProject; 
+  }, [currentProject]);
+
+  // Main effect: Handle wheel and touch events for page state transitions
+  useEffect(() => {
+    // Wheel handler: Switch page states or navigate projects
     function onWheel(e: WheelEvent) {
+      e.preventDefault();
+      
+      const dir = Math.sign(e.deltaY); // +1 for down, -1 for up
+      const currentState = pageStateRef.current;
+      
       // In projects state: navigate between slides
-      if (pageStateRef.current === 'projects') {
-        e.preventDefault(); // Prevent any native browser scrolling
-        
-        // Check debounce lock - if locked, ignore this event to prevent rapid slide skipping
+      if (currentState === 'projects') {
         if (projectScrollLock.current) return;
         
-        // Set lock and schedule unlock after 300ms (debounce duration)
         projectScrollLock.current = true;
-        
-        // dir: +1 for scroll down (next project), -1 for scroll up (previous project)
-        const dir = Math.sign(e.deltaY);
-        
-        // cur: current project index from ref (always fresh, not stale)
         const cur = currentProjectRef.current;
         
         // Scroll up from first project returns to About
         if (dir < 0 && cur === 0) {
-          setVpos(0.5);          // Jump to middle of vpos range (about section)
-          setPageState('about'); // Explicitly set state to avoid threshold delays
-          setScrolled(true);     // Enable inverted colors for about section
-          setTimeout(() => { projectScrollLock.current = false; }, 300); // Release lock
-          return; // Exit handler - don't update currentProject
-        }
-        
-        // Navigate between projects
-        setCurrentProject((i) => Math.min(projects.length - 1, Math.max(0, i + dir)));
-        
-        // Release debounce lock after 300ms to allow next slide transition
-        setTimeout(() => { projectScrollLock.current = false; }, 300);
-        return; // Exit handler - we handled this event in projects context
-      }
-
-      // Default: Update virtual scroll position
-      e.preventDefault();
-      const delta = Math.sign(e.deltaY) * 0.05;
-      
-      // Update vpos, clamped to [0, 1] range with 3 decimal precision
-      // toFixed(3) prevents floating point accumulation errors
-      setVpos((p) => Math.min(1, Math.max(0, +(p + delta).toFixed(3))));
-    }
-    
-    // Touch handlers: Mirror wheel behavior for mobile
-    let touchStartY: number | null = null;
-    
-    // onTouchStart: Capture the starting Y position of a touch gesture
-    function onTouchStart(e: TouchEvent) {
-      touchStartY = e.touches[0].clientY; // Store initial Y coordinate for distance calculation
-    
-    }
-    
-    // onTouchMove: Process touch drag gestures (swipe up/down)
-    // Logic mirrors onWheel handler for consistent behavior across input methods
-    function onTouchMove(e: TouchEvent) {
-      // Safety check: only process if we have a valid starting position
-      if (touchStartY == null) return;
-      
-      // d: distance traveled (positive = swipe up, negative = swipe down)
-      const d = touchStartY - e.touches[0].clientY;
-      
-      // dir: normalized direction (+1 for up/next, -1 for down/previous)
-      const dir = Math.sign(d);
-      
-      // In projects state: navigate between slides
-      if (pageStateRef.current === 'projects') {
-        e.preventDefault(); // Prevent native scroll/pull-to-refresh
-        
-        // Check debounce lock - ignore rapid touches
-        if (projectScrollLock.current) return;
-        
-        // Set lock to prevent slide skipping
-        projectScrollLock.current = true;
-        
-        // cur: current project index from ref
-        const cur = currentProjectRef.current;
-        
-        // Swipe down from first project returns to About
-        if (dir < 0 && cur === 0) {
-          setVpos(0.5);
+          // Use page scroll lock to prevent rapid transition through about to portfolio
+          pageScrollLock.current = true;
+          setTimeout(() => { pageScrollLock.current = false; }, 800);
+          
           setPageState('about');
           setScrolled(true);
-          setTimeout(() => { projectScrollLock.current = false; }, 300);
+          setTimeout(() => { projectScrollLock.current = false; }, 500);
+          return;
+        }
+        
+        // Scroll down from last project goes to Resume
+        if (dir > 0 && cur === projects.length - 1) {
+          // Use page scroll lock to prevent rapid transitions
+          pageScrollLock.current = true;
+          setTimeout(() => { pageScrollLock.current = false; }, 800);
+          
+          setPageState('resume');
+          setScrolled(false);
+          setTimeout(() => { projectScrollLock.current = false; }, 500);
           return;
         }
         
         // Navigate between projects
         setCurrentProject((i) => Math.min(projects.length - 1, Math.max(0, i + dir)));
-        setTimeout(() => { projectScrollLock.current = false; }, 300);
+        setTimeout(() => { projectScrollLock.current = false; }, 500);
+        return;
+      }
+
+      // Check page transition lock
+      if (pageScrollLock.current) return;
+      
+      // Lock scrolling for 800ms to prevent rapid transitions
+      pageScrollLock.current = true;
+      setTimeout(() => { pageScrollLock.current = false; }, 800);
+      
+      // Scroll down: advance to next state
+      if (dir > 0) {
+        if (currentState === 'portfolio') {
+          setPageState('about');
+          setScrolled(true);
+        } else if (currentState === 'about') {
+          setPageState('projects');
+          setScrolled(false);
+        }
+      }
+      // Scroll up: go back to previous state
+      else if (dir < 0) {
+        if (currentState === 'resume') {
+          setPageState('projects');
+          setScrolled(false);
+        } else if (currentState === 'about') {
+          setPageState('portfolio');
+          setScrolled(false);
+        }
+      }
+    }
+    
+    // Touch handlers: Mirror wheel behavior for mobile
+    let touchStartY: number | null = null;
+    
+    function onTouchStart(e: TouchEvent) {
+      touchStartY = e.touches[0].clientY;
+    }
+    
+    function onTouchMove(e: TouchEvent) {
+      if (touchStartY == null) return;
+      
+      e.preventDefault();
+      
+      const d = touchStartY - e.touches[0].clientY;
+      const dir = Math.sign(d);
+      const currentState = pageStateRef.current;
+      
+      // In projects state: navigate between slides
+      if (currentState === 'projects') {
+        if (projectScrollLock.current) return;
+        
+        projectScrollLock.current = true;
+        const cur = currentProjectRef.current;
+        
+        // Swipe down from first project returns to About
+        if (dir < 0 && cur === 0) {
+          // Use page scroll lock to prevent rapid transition through about to portfolio
+          pageScrollLock.current = true;
+          setTimeout(() => { pageScrollLock.current = false; }, 800);
+          
+          setPageState('about');
+          setScrolled(true);
+          setTimeout(() => { projectScrollLock.current = false; }, 500);
+          return;
+        }
+        
+        // Swipe up from last project goes to Resume
+        if (dir > 0 && cur === projects.length - 1) {
+          // Use page scroll lock to prevent rapid transitions
+          pageScrollLock.current = true;
+          setTimeout(() => { pageScrollLock.current = false; }, 800);
+          
+          setPageState('resume');
+          setScrolled(false);
+          setTimeout(() => { projectScrollLock.current = false; }, 500);
+          return;
+        }
+        
+        // Navigate between projects
+        setCurrentProject((i) => Math.min(projects.length - 1, Math.max(0, i + dir)));
+        setTimeout(() => { projectScrollLock.current = false; }, 500);
         return;
       }
       
-      // Default: Update virtual scroll position
-      e.preventDefault();
-      const delta = dir * 0.05;
-      setVpos((p) => Math.min(1, Math.max(0, +(p + delta).toFixed(3))));
+      // Check page transition lock
+      if (pageScrollLock.current) return;
+      
+      // Lock scrolling for 800ms
+      pageScrollLock.current = true;
+      setTimeout(() => { pageScrollLock.current = false; }, 800);
+      
+      // Swipe up: advance to next state
+      if (dir > 0) {
+        if (currentState === 'portfolio') {
+          setPageState('about');
+          setScrolled(true);
+        } else if (currentState === 'about') {
+          setPageState('projects');
+          setScrolled(false);
+        }
+      }
+      // Swipe down: go back to previous state
+      else if (dir < 0) {
+        if (currentState === 'resume') {
+          setPageState('projects');
+          setScrolled(false);
+        } else if (currentState === 'about') {
+          setPageState('portfolio');
+          setScrolled(false);
+        }
+      }
     }
     
     // Attach event listeners (passive:false allows preventDefault)
@@ -148,15 +199,13 @@ export default function Home() {
     window.addEventListener("touchstart", onTouchStart, { passive: false });
     window.addEventListener("touchmove", onTouchMove, { passive: false });
     
-    setVpos(0);
-    
     // Cleanup
     return () => {
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchmove", onTouchMove);
     };
-  }, [pageState]);
+  }, []);
 
   // Toggle inverted colors for about section
   useEffect(() => {
@@ -164,36 +213,15 @@ export default function Home() {
     else document.body.classList.remove("inverted");
   }, [scrolled]);
 
-  // Derive pageState from vpos with hysteresis to prevent flickering
-  useEffect(() => {
-    setPageState((prev) => {
-      if (prev === 'portfolio') {
-        if (vpos > 0.4) return 'about'; // Enter about at 0.4
-        return prev; // Stay in portfolio if vpos <= 0.4
-      }
-      
-      // FROM 'about' state:
-      if (prev === 'about') {
-        if (vpos >= 0.8) return 'projects';
-        if (vpos < 0.35) return 'portfolio';
-        return prev;
-      }
-      
-      if (prev === 'projects') {
-        if (vpos < 0.75) return 'about';
-        return prev;
-      }
-      
-      return prev;
-    });
-  }, [vpos]);
-
   // Sync body classes and notify navigation of state changes
   useEffect(() => {
     setScrolled(pageState === 'about');
     
     if (pageState === 'projects') document.body.classList.add('projects');
     else document.body.classList.remove('projects');
+    
+    if (pageState === 'resume') document.body.classList.add('resume');
+    else document.body.classList.remove('resume');
 
     // Notify nav to keep highlighting in sync
     try { 
@@ -207,23 +235,19 @@ export default function Home() {
       const s = e?.detail?.state;
       
       if (s === 'about') {
-        setVpos(0.5);
         setPageState('about');
         setScrolled(true);
       }
       else if (s === 'portfolio') {
-        setVpos(0);
         setPageState('portfolio');
         setScrolled(false);
       }
       else if (s === 'projects') {
-        setVpos(1);
         setPageState('projects');
         setScrolled(false);
       }
       else if (s === 'resume') {
-        setVpos(1);
-        setPageState('projects');
+        setPageState('resume');
         setScrolled(false);
       }
     }
@@ -235,8 +259,8 @@ export default function Home() {
   return (
     <div>
       <section className="title-section">
-        {/* Hide portfolio/about content when in projects state */}
-        {pageState !== 'projects' && (
+        {/* Hide portfolio/about content when in projects or resume state */}
+        {pageState !== 'projects' && pageState !== 'resume' && (
           <>
             <h2
               className={`hero glitch layers ${scrolled ? "hide" : ""}`}
@@ -300,7 +324,38 @@ export default function Home() {
             </div>
           </div>
         )}
-        {/* when pageState === 'postAbout' nothing of the hero/lorem/image is rendered, producing a gap */}
+        
+        {/* Resume section */}
+        {pageState === 'resume' && (
+          <div className="resume-section">
+            {/* Decorative animated cuts */}
+            <div className="border-cuts">
+              <span className="cut top c1" />
+              <span className="cut top c2" />
+              <span className="cut top c3" />
+              <span className="cut top c4" />
+
+              <span className="cut right c1" />
+              <span className="cut right c2" />
+              <span className="cut right c3" />
+              <span className="cut right c4" />
+
+              <span className="cut bottom c1" />
+              <span className="cut bottom c2" />
+              <span className="cut bottom c3" />
+              <span className="cut bottom c4" />
+
+              <span className="cut left c1" />
+              <span className="cut left c2" />
+              <span className="cut left c3" />
+              <span className="cut left c4" />
+            </div>
+
+            <a href="/images/CV-Nieck-Buijs.pdf" target="_blank" rel="noopener noreferrer" className="resume-link">
+              <span>Click for <br/>Resume</span>
+            </a>
+          </div>
+        )}
       </section>
     </div>
   );

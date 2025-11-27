@@ -61,6 +61,7 @@ export default function RootLayout({
               var about = document.getElementById('about-nav');
               var portfolio = document.getElementById('portfolio-nav');
               var projects = document.getElementById('projects-nav');
+              var resume = document.getElementById('resume-nav');
               function clearSelected(){
                 var els = document.querySelectorAll('.nav-item.selected');
                 els.forEach(function(el){ el.classList.remove('selected'); });
@@ -68,8 +69,9 @@ export default function RootLayout({
               if(about) about.addEventListener('click', function(e){ e.preventDefault(); window.dispatchEvent(new CustomEvent('setPageState', { detail: { state: 'about' } })); clearSelected(); about.classList.add('selected'); });
               if(portfolio) portfolio.addEventListener('click', function(e){ e.preventDefault(); window.dispatchEvent(new CustomEvent('setPageState', { detail: { state: 'portfolio' } })); clearSelected(); portfolio.classList.add('selected'); });
               if(projects) projects.addEventListener('click', function(e){ e.preventDefault(); window.dispatchEvent(new CustomEvent('setPageState', { detail: { state: 'projects' } })); clearSelected(); projects.classList.add('selected'); });
+              if(resume) resume.addEventListener('click', function(e){ e.preventDefault(); window.dispatchEvent(new CustomEvent('setPageState', { detail: { state: 'resume' } })); clearSelected(); resume.classList.add('selected'); });
               // keep nav selection synced with external setPageState events
-              window.addEventListener('setPageState', function(ev){ var s = ev?.detail?.state; clearSelected(); if(s === 'about' && about) about.classList.add('selected'); else if(s === 'portfolio' && portfolio) portfolio.classList.add('selected'); else if(s === 'projects' && projects) projects.classList.add('selected'); });
+              window.addEventListener('setPageState', function(ev){ var s = ev?.detail?.state; clearSelected(); if(s === 'about' && about) about.classList.add('selected'); else if(s === 'portfolio' && portfolio) portfolio.classList.add('selected'); else if(s === 'projects' && projects) projects.classList.add('selected'); else if(s === 'resume' && resume) resume.classList.add('selected'); });
             })();
           `}} />
 
