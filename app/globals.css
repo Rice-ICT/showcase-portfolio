@@ -62,7 +62,11 @@ body {
   padding: 6px 12px;
   cursor: pointer;
   font-size: 1.25rem;
-  transition: color 300ms ease, background-color 300ms ease, font-style 300ms ease;
+  transition: color 300ms ease, background-color 300ms ease;
+}
+.nav-item:hover{
+  font-weight: 300; /* selected */
+  font-style: italic;
 }
 
 .selected{
@@ -346,11 +350,21 @@ body.contact .nav-item {
   font-weight: 200;
 }
 
+body.contact .nav-item:hover {
+  font-weight: 300;
+  font-style: italic;
+}
+
 body.contact #about-nav {
-  background: transparent !important;
-  color: #F7E211 !important;
-  font-style: normal !important;
-  font-weight: 200 !important;
+  background: transparent;
+  color: #F7E211;
+  font-style: normal;
+  font-weight: 200;
+}
+
+body.contact #about-nav:hover {
+  font-weight: 300;
+  font-style: italic;
 }
 
 body.contact #contact-nav.selected {
@@ -479,6 +493,33 @@ body.post-about {
     }
 }
 
+@keyframes text-glitch-repeat {
+  0% {
+    font-family: 'Inter', sans-serif;
+    font-style: italic; 
+    letter-spacing: normal;
+  }
+  1.19% {
+    font-family: 'Courier New', Courier, monospace;
+    font-style: normal; 
+    letter-spacing: -0.1vw;
+  }
+  2.38% {
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-style: italic; 
+    letter-spacing: normal;
+  }
+  3.57% {
+    font-family: 'Lucida Console', Monaco, monospace;
+    font-style: normal; 
+    letter-spacing: normal;
+  }
+  4.76%, 100% {
+    font-family: 'Inter', sans-serif;
+    font-style: italic; 
+  }
+}
+
 
 .resume-link:hover {
   opacity: 0.7;
@@ -581,6 +622,28 @@ body.resume #portfolio-nav {
   font-size: 1.2vw;
   text-decoration: none;
   color: inherit;
+  transition: color 200ms ease;
+}
+.contact-link:hover{
+  color: #5D5DFF;
+}
+@media (max-width: 1150px) {
+  .contact-section img{
+    display: none;
+  }
+  .contact-info-section{
+    padding-left: 0;
+    margin-right: 0;
+    width: auto;
+    justify-content: start;
+    align-items: center;
+    scale: 1.5;
+  }
+  .contact-link-title, .contact-link{
+    text-align: center;
+    
+  }
+  
 }
 
 
@@ -1040,6 +1103,187 @@ body.resume #portfolio-nav {
   animation: paths 5s step-end infinite, opacity 5s step-end infinite,
     font 7s step-end infinite, movement 8s step-end infinite;
 }
+
+/* Mobile responsive styles */
+@media (max-width: 800px) {
+  /* Reduce site frame padding */
+  .site-frame {
+    width: calc(100vw - 20px);
+    height: calc(100vh - 20px);
+    padding: 15px;
+  }
+
+  /* Navigation adjustments */
+  .nav-list {
+    gap: 8px;
+  }
+
+  .nav-item {
+    font-size: 1rem;
+    padding: 4px 8px;
+  }
+
+  /* Hero text - make it larger and more readable */
+  .hero {
+    font-size: clamp(5rem, 14vw, 7rem);
+    line-height: 1.1;
+    margin-left: 0;
+  }
+
+  .hero span {
+    font-size: clamp(5rem, 14vw, 7rem);
+  }
+
+  /* About section text - prioritize readability */
+  .lorem {
+    font-size: 3vw;
+    line-height: 1.5;
+    width: 60%;
+    margin-left: 5vw;
+    height: 80%;
+    text-align: center;
+  }
+
+  /* Hide profile image on mobile to prioritize text */
+  .nieck-image {
+    display: none;
+  }
+
+  /* Projects section - scale down but maintain format */
+  .projects-section {
+    width: 80vw;
+    height: 45vw;
+    max-height: 400px;
+    max-width: 800px;
+    margin: 20px auto;
+  }
+
+  .project-slide {
+    padding: 8px;
+  }
+
+  .project-slide .project-image {
+    width: 75vw;
+    max-width: 90%;
+    height: auto;
+    margin-bottom: 8px;
+  }
+
+  .textbox-project-button {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 2.5vw;
+    width: 100%;
+  }
+
+  .project-text-left,
+  .project-text-right {
+    font-size: 2.5vw;
+  }
+
+  /* Resume section */
+  .resume-section {
+    width: 80vw;
+    height: 40vh;
+    min-height: 200px;
+    max-height: none;
+    max-width: none;
+    margin: 20px auto;
+  }
+
+  .resume-link {
+    text-align: center;
+  }
+  .resume-link span {
+    font-size: 15vw;
+    line-height: 13vw;
+    animation: text-glitch-repeat 4.2s ease-in-out infinite;
+  }
+  
+
+  /* Contact section */
+  .contact-section{
+    text-align: center;
+  }
+  .contact-container{
+    scale: 1.5;
+  }
+
+  /* Border cuts - make them smaller */
+  .cut {
+    width: 20px;
+    height: 20px;
+  }
+
+  .cut.top,
+  .cut.bottom {
+    width: 20px;
+    height: 2px;
+  }
+
+  .cut.left,
+  .cut.right {
+    width: 2px;
+    height: 20px;
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+  .site-frame {
+    width: calc(100vw - 10px);
+    height: calc(100vh - 10px);
+    padding: 10px;
+  }
+
+  .nav-item {
+    font-size: 0.9rem;
+    padding: 3px 6px;
+  }
+
+  .hero {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+  }
+
+  .lorem {
+    font-size: 0.9rem;
+  }
+
+  .projects-section {
+    width: 90vw;
+    height: 50vw;
+    max-height: 350px;
+  }
+
+  .project-slide .project-image {
+    width: 82vw;
+    max-width: 90%;
+  }
+
+  .textbox-project-button {
+    font-size: 3vw;
+  }
+
+  .project-text-left,
+  .project-text-right {
+    font-size: 3vw;
+  }
+
+  .resume-section {
+    width: 90vw;
+    height: 35vh;
+  }
+
+  .resume-link {
+    font-size: 1rem;
+  }
+  .contact-container{
+    scale: 2;
+  }
+}
+
 
 
 
