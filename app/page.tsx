@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function Home() {
   // Current section being displayed
-  const [pageState, setPageState] = useState<'portfolio'|'about'|'projects'|'resume'>('portfolio');
+  const [pageState, setPageState] = useState<'portfolio'|'about'|'projects'|'resume'|'contact'>('portfolio');
   
   // Controls inverted color scheme (black bg + yellow text in about section)
   const [scrolled, setScrolled] = useState(false);
@@ -98,11 +98,17 @@ export default function Home() {
         } else if (currentState === 'about') {
           setPageState('projects');
           setScrolled(false);
+        } else if (currentState === 'resume') {
+          setPageState('contact');
+          setScrolled(true);
         }
       }
       // Scroll up: go back to previous state
       else if (dir < 0) {
-        if (currentState === 'resume') {
+        if (currentState === 'contact') {
+          setPageState('resume');
+          setScrolled(false);
+        } else if (currentState === 'resume') {
           setPageState('projects');
           setScrolled(false);
         } else if (currentState === 'about') {
@@ -180,11 +186,17 @@ export default function Home() {
         } else if (currentState === 'about') {
           setPageState('projects');
           setScrolled(false);
+        } else if (currentState === 'resume') {
+          setPageState('contact');
+          setScrolled(true);
         }
       }
       // Swipe down: go back to previous state
       else if (dir < 0) {
-        if (currentState === 'resume') {
+        if (currentState === 'contact') {
+          setPageState('resume');
+          setScrolled(false);
+        } else if (currentState === 'resume') {
           setPageState('projects');
           setScrolled(false);
         } else if (currentState === 'about') {
@@ -215,13 +227,16 @@ export default function Home() {
 
   // Sync body classes and notify navigation of state changes
   useEffect(() => {
-    setScrolled(pageState === 'about');
+    setScrolled(pageState === 'about' || pageState === 'contact');
     
     if (pageState === 'projects') document.body.classList.add('projects');
     else document.body.classList.remove('projects');
     
     if (pageState === 'resume') document.body.classList.add('resume');
     else document.body.classList.remove('resume');
+    
+    if (pageState === 'contact') document.body.classList.add('contact');
+    else document.body.classList.remove('contact');
 
     // Notify nav to keep highlighting in sync
     try { 
@@ -250,6 +265,10 @@ export default function Home() {
         setPageState('resume');
         setScrolled(false);
       }
+      else if (s === 'contact') {
+        setPageState('contact');
+        setScrolled(true);
+      }
     }
     
     window.addEventListener("setPageState", onSet as EventListener);
@@ -259,8 +278,8 @@ export default function Home() {
   return (
     <div>
       <section className="title-section">
-        {/* Hide portfolio/about content when in projects or resume state */}
-        {pageState !== 'projects' && pageState !== 'resume' && (
+        {/* Hide portfolio/about content when in projects, resume, or contact state */}
+        {pageState !== 'projects' && pageState !== 'resume' && pageState !== 'contact' && (
           <>
             <h2
               className={`hero glitch layers ${scrolled ? "hide" : ""}`}
@@ -354,6 +373,31 @@ export default function Home() {
             <a href="/images/CV-Nieck-Buijs.pdf" target="_blank" rel="noopener noreferrer" className="resume-link">
               <span>Click for <br/>Resume</span>
             </a>
+          </div>
+        )}
+        
+        {/* Contact section */}
+        {pageState === 'contact' && (
+          <div className="contact-section">
+            <section className="contact-info-section">
+              <h2 className="contact-title">WANT TO SAY HI?</h2>
+
+              <div className="contact-container">
+                <h3 className="contact-link-title">Mail:</h3>
+                <a href="mailto:nieckbuijswork@gmail.com" className="contact-link">nieckbuijswork@gmail.com</a>
+              </div>
+              
+              <div className="contact-container">
+                <h3 className="contact-link-title">Github:</h3>
+                <a href="https://github.com/Rice-ICT" className="contact-link">https://github.com/Rice-ICT</a>
+              </div>
+
+              <div className="contact-container">
+                <h3 className="contact-link-title">LinkedIn:</h3>
+                <a href="https://www.linkedin.com/in/nieck-buijs" className="contact-link">www.linkedin.com/in/nieck-buijs</a>
+              </div>
+            </section>
+            <img src="/images/tech-profile-pic-yellow-bg.png" alt="Nieck Buijs" className="nieck-image" />
           </div>
         )}
       </section>

@@ -329,6 +329,40 @@ body.inverted .hero{ color: #000; }
 body.inverted .lorem{ color: #F7E211; }
 body.inverted .cut{ background: #000; }
 
+/* Contact state styles */
+body.contact {
+  background-color: #000 !important;
+  color: #F7E211 !important;
+}
+
+body.contact .site-frame {
+  border-color: #F7E211;
+}
+
+body.contact .nav-item {
+  color: #F7E211;
+  background: transparent;
+  font-style: normal;
+  font-weight: 200;
+}
+
+body.contact #about-nav {
+  background: transparent !important;
+  color: #F7E211 !important;
+  font-style: normal !important;
+  font-weight: 200 !important;
+}
+
+body.contact #contact-nav.selected {
+  background: #F7E211 !important;
+  color: #000 !important;
+  font-style: italic !important;
+  font-weight: 300 !important;
+}
+
+body.contact .hero { color: #F7E211; }
+body.contact .cut { background: #000; }
+
 /* when we've scrolled past the about section, create a small visual gap before next content */
 body.post-about .site-frame {
   /* increase bottom spacing inside the frame so the next section doesn't appear instantly */
@@ -506,6 +540,47 @@ body.about #portfolio-nav,
 body.projects #portfolio-nav,
 body.resume #portfolio-nav {
   font-weight: 200 !important;
+}
+
+.contact-section{
+  display: flex;
+}
+.contact-info-section{
+  display: flex;
+  flex-direction: column;
+  padding-top: 40px;
+  padding-left: 100px;
+  text-align: start;
+  width: 600px;
+  margin-right: -165px;
+}
+.contact-title{
+  font-family: "Inter", sans-serif;
+  font-weight: 800;
+  font-style: italic;
+  font-size: 3.5vw;
+  line-height: 0.8;
+  margin-bottom: 30px;
+}
+.contact-container{
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 30px;
+}
+.contact-link-title{
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 1.5vw;
+}
+.contact-link{
+  font-family: "Inter", sans-serif;
+  font-weight: 200;
+  font-style: italic;
+  font-size: 1.2vw;
+  text-decoration: none;
+  color: inherit;
 }
 
 
