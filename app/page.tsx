@@ -389,12 +389,12 @@ export default function Home() {
               
               <div className="contact-container">
                 <h3 className="contact-link-title">Github:</h3>
-                <a href="https://github.com/Rice-ICT" className="contact-link">https://github.com/Rice-ICT</a>
+                <a href="https://github.com/Rice-ICT" className="contact-link" target="_blank">https://github.com/Rice-ICT</a>
               </div>
 
               <div className="contact-container">
                 <h3 className="contact-link-title">LinkedIn:</h3>
-                <a href="https://www.linkedin.com/in/nieck-buijs" className="contact-link">www.linkedin.com/in/nieck-buijs</a>
+                <a href="https://www.linkedin.com/in/nieck-buijs" className="contact-link" target="_blank">www.linkedin.com/in/nieck-buijs</a>
               </div>
             </section>
             <img src="/images/tech-profile-pic-yellow-bg.png" alt="Nieck Buijs" className="nieck-image" />
